@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatbot Assistant</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #eef2f3;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #chat-container {
+      width: 100%;
+      max-width: 600px;
+      background: #ffffff;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    #chat-log {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      margin-bottom: 15px;
+      height: 400px;
+    }
+    .message {
+      margin: 10px 0;
+    }
+    .user {
+      color: #007bff;
+    }
+    .bot {
+      color: #28a745;
+    }
+    #input-area {
+      display: flex;
+      gap: 10px;
+    }
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #28a745;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-container">
+    <h2>🤖 Chat with Bot</h2>
+    <div id="chat-log"></div>
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Type a message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const inputBox = document.getElementById("user-input");
+    const chatLog = document.getElementById("chat-log");
+
+    async function sendMessage() {
+      const userMessage = inputBox.value.trim();
+      if (!userMessage) return;
+
+      appendMessage("You", userMessage, "user");
+      inputBox.value = "";
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage })
+        });
+
+        if (!response.ok) throw new Error("Server error");
+
+        const data = await response.json();
+        appendMessage("Bot", data.response, "bot");
+      } catch (error) {
+        appendMessage("Bot", "⚠️ Server not reachable. Is app.py running?", "bot");
+      }
+
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function appendMessage(sender, message, className) {
+      const msgDiv = document.createElement("div");
+      msgDiv.className = `message ${className}`;
+      msgDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+      chatLog.appendChild(msgDiv);
+    }
+
+    inputBox.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>

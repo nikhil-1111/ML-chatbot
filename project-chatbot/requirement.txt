@@ -1,0 +1,5 @@
+streamlit==1.29.0
+joblib==1.3.2
+scikit-learn==1.3.0  # Required if your model uses sklearn
+flask==2.3.2         # Only needed if keeping Flask API
+flask_cors==4.0.0    # Only needed if keeping Flask API
